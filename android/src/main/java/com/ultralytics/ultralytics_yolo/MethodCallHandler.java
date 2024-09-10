@@ -6,6 +6,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.DisplayMetrics;
+import android.util.Size;
 
 import androidx.annotation.NonNull;
 
@@ -87,6 +88,9 @@ public class MethodCallHandler implements MethodChannel.MethodCallHandler {
                 break;
             case "detectImage":
                 detectImage(call, result);
+                break;
+            case "detectBytes":
+                detectBytes(call, result);
                 break;
             case "classifyImage":
                 classifyImage(call, result);
@@ -316,6 +320,51 @@ public class MethodCallHandler implements MethodChannel.MethodCallHandler {
         }
     }
 
+    private void detectBytes(MethodCall call, MethodChannel.Result result) {
+        if (predictor != null) {
+            Object bytes = call.argument("bytes");
+            HashMap<String, Object> previewSizeObj = call.argument("previewSize");
+            HashMap<String, Object> imageSizeObj = call.argument("imageSize");
+
+            if (bytes != null && previewSizeObj != null && imageSizeObj != null) {
+                final byte[] data = (byte[]) bytes;
+                final Size previewSize = new Size(getIntValue(previewSizeObj.get("width")), getIntValue(previewSizeObj.get("height")));
+                final Size imageSize = new Size(getIntValue(imageSizeObj.get("width")), getIntValue(imageSizeObj.get("height")));
+
+                Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+                final float[][] res = (float[][]) predictor.predict(bitmap, previewSize, imageSize);
+
+                float newWidth = (float)(previewSize.getHeight() * (imageSize.getHeight() / imageSize.getWidth()));
+                final float offsetX = ((float)previewSize.getWidth() - newWidth) / 2;
+                List<Map<String, Object>> objects = new ArrayList<>();
+
+                for (float[] obj : res) {
+                    Map<String, Object> objectMap = new HashMap<>();
+
+                    float x = obj[0] * newWidth + offsetX;
+                    float y = obj[1] * previewSize.getHeight();
+                    float width = obj[2] * newWidth;
+                    float height = obj[3] * previewSize.getHeight();
+                    float confidence = obj[4];
+                    int index = (int) obj[5];
+                    String label = index < predictor.labels.size() ? predictor.labels.get(index) : "";
+
+                    objectMap.put("x", x);
+                    objectMap.put("y", y);
+                    objectMap.put("width", width);
+                    objectMap.put("height", height);
+                    objectMap.put("confidence", confidence);
+                    objectMap.put("index", index);
+                    objectMap.put("label", label);
+
+                    objects.add(objectMap);
+                }
+
+                result.success(objects);
+            }
+        }
+    }
+
     private void classifyImage(MethodCall call, MethodChannel.Result result) {
         if (predictor != null) {
             Object imagePathObject = call.argument("imagePath");
@@ -346,5 +395,10 @@ public class MethodCallHandler implements MethodChannel.MethodCallHandler {
             final double factor = (double) factorObject;
             cameraPreview.setScaleFactor(factor);
         }
+    }
+
+    private int getIntValue(Object value) {
+        final double dValue = (double) value;
+        return (int) dValue;
     }
 }

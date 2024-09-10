@@ -180,7 +180,7 @@ public class ObjectClassifier: Predictor {
     }
   }
 
-  public func predictOnImage(image: CIImage, completion: ([[String: Any]]) -> Void) {
+  public func predictOnImage(image: CIImage, height: Double?, width: Double?, aspectRatio: Double?, completion: ([[String: Any]]) -> Void) {
     let requestHandler = VNImageRequestHandler(ciImage: image, options: [:])
     let request = VNCoreMLRequest(model: classifier)
     var recognitions: [[String: Any]] = []

@@ -10,6 +10,7 @@ import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Size;
 
 import androidx.camera.core.ImageProxy;
 
@@ -96,6 +97,25 @@ public class TfliteDetector extends Detector {
         try {
             Bitmap resizedBitmap = Bitmap.createScaledBitmap(bitmap, INPUT_SIZE, INPUT_SIZE, true);
             setInput(resizedBitmap);
+            return runInference();
+        } catch (Exception e) {
+            return new float[0][];
+        }
+    }
+
+    @Override
+    public float[][] predict(Bitmap bitmap, Size previewSize, Size imageSize) {
+        try {
+            final Matrix matrix = ImageUtils.getTransformationMatrix(imageSize.getWidth(), imageSize.getHeight(),
+                    INPUT_SIZE, INPUT_SIZE,
+                    90, false);
+
+            Canvas canvas = new Canvas(pendingBitmapFrame);
+            Matrix cropToFrameTransform = new Matrix();
+            matrix.invert(cropToFrameTransform);
+            canvas.drawBitmap(bitmap, matrix, null);
+
+            setInput(pendingBitmapFrame);
             return runInference();
         } catch (Exception e) {
             return new float[0][];

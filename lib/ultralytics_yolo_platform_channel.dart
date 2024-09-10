@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:ultralytics_yolo/predict/classify/classification_result.dart';
 import 'package:ultralytics_yolo/predict/detect/detected_object.dart';
-
 import 'package:ultralytics_yolo/ultralytics_yolo_platform_interface.dart';
 
 /// An implementation of [UltralyticsYoloPlatform] that uses method channels.
@@ -13,13 +12,11 @@ class PlatformChannelUltralyticsYolo implements UltralyticsYoloPlatform {
 
   /// The event channel used to stream the detection results
   @visibleForTesting
-  final predictionResultsEventChannel =
-      const EventChannel('ultralytics_yolo_prediction_results');
+  final predictionResultsEventChannel = const EventChannel('ultralytics_yolo_prediction_results');
 
   /// The event channel used to stream the inference time
   @visibleForTesting
-  final inferenceTimeEventChannel =
-      const EventChannel('ultralytics_yolo_inference_time');
+  final inferenceTimeEventChannel = const EventChannel('ultralytics_yolo_inference_time');
 
   /// The event channel used to stream the inference time
   @visibleForTesting
@@ -36,51 +33,37 @@ class PlatformChannelUltralyticsYolo implements UltralyticsYoloPlatform {
       }).catchError((dynamic e) => e.toString());
 
   @override
-  Future<String?> setConfidenceThreshold(double confidence) =>
-      methodChannel.invokeMethod<String>(
+  Future<String?> setConfidenceThreshold(double confidence) => methodChannel.invokeMethod<String>(
         'setConfidenceThreshold',
         {'confidence': confidence},
       );
 
   @override
-  Future<String?> setIouThreshold(double iou) =>
-      methodChannel.invokeMethod<String>('setIouThreshold', {'iou': iou});
+  Future<String?> setIouThreshold(double iou) => methodChannel.invokeMethod<String>('setIouThreshold', {'iou': iou});
 
   @override
-  Future<String?> setNumItemsThreshold(int numItems) => methodChannel
-      .invokeMethod<String>('setNumItemsThreshold', {'numItems': numItems});
+  Future<String?> setNumItemsThreshold(int numItems) => methodChannel.invokeMethod<String>('setNumItemsThreshold', {'numItems': numItems});
 
   @override
-  Future<String?> setZoomRatio(double ratio) =>
-      methodChannel.invokeMethod<String>('setZoomRatio', {'ratio': ratio});
+  Future<String?> setZoomRatio(double ratio) => methodChannel.invokeMethod<String>('setZoomRatio', {'ratio': ratio});
 
   @override
-  Future<String?> setLensDirection(int direction) => methodChannel
-      .invokeMethod<String>('setLensDirection', {'direction': direction});
+  Future<String?> setLensDirection(int direction) => methodChannel.invokeMethod<String>('setLensDirection', {'direction': direction});
 
   @override
-  Future<String?> closeCamera() => methodChannel
-      .invokeMethod<String>('closeCamera')
-      .catchError((dynamic e) => e.toString());
+  Future<String?> closeCamera() => methodChannel.invokeMethod<String>('closeCamera').catchError((dynamic e) => e.toString());
 
   @override
-  Future<String?> startCamera() => methodChannel
-      .invokeMethod<String>('startCamera')
-      .catchError((dynamic e) => e.toString());
+  Future<String?> startCamera() => methodChannel.invokeMethod<String>('startCamera').catchError((dynamic e) => e.toString());
 
   @override
-  Future<String?> pauseLivePrediction() => methodChannel
-      .invokeMethod<String>('pauseLivePrediction')
-      .catchError((dynamic e) => e.toString());
+  Future<String?> pauseLivePrediction() => methodChannel.invokeMethod<String>('pauseLivePrediction').catchError((dynamic e) => e.toString());
 
   @override
-  Future<String?> resumeLivePrediction() => methodChannel
-      .invokeMethod<String>('resumeLivePrediction')
-      .catchError((dynamic e) => e.toString());
+  Future<String?> resumeLivePrediction() => methodChannel.invokeMethod<String>('resumeLivePrediction').catchError((dynamic e) => e.toString());
 
   @override
-  Stream<List<DetectedObject?>?> get detectionResultStream =>
-      predictionResultsEventChannel.receiveBroadcastStream().map(
+  Stream<List<DetectedObject?>?> get detectionResultStream => predictionResultsEventChannel.receiveBroadcastStream().map(
         (result) {
           final objects = <DetectedObject>[];
           result = result as List;
@@ -95,15 +78,13 @@ class PlatformChannelUltralyticsYolo implements UltralyticsYoloPlatform {
       );
 
   @override
-  Stream<List<ClassificationResult?>?> get classificationResultStream =>
-      predictionResultsEventChannel.receiveBroadcastStream().map(
+  Stream<List<ClassificationResult?>?> get classificationResultStream => predictionResultsEventChannel.receiveBroadcastStream().map(
         (result) {
           final objects = <ClassificationResult>[];
           result = result as List;
 
           for (dynamic json in result) {
-            objects.add(ClassificationResult.fromJson(
-                Map<String, dynamic>.from(json as Map)));
+            objects.add(ClassificationResult.fromJson(Map<String, dynamic>.from(json as Map)));
           }
 
           return objects;
@@ -111,19 +92,14 @@ class PlatformChannelUltralyticsYolo implements UltralyticsYoloPlatform {
       );
 
   @override
-  Stream<double>? get inferenceTimeStream => inferenceTimeEventChannel
-      .receiveBroadcastStream()
-      .map((time) => (time as num).toDouble());
+  Stream<double>? get inferenceTimeStream => inferenceTimeEventChannel.receiveBroadcastStream().map((time) => (time as num).toDouble());
 
   @override
-  Stream<double>? get fpsRateStream => fpsRateEventChannel
-      .receiveBroadcastStream()
-      .map((rate) => (rate as num).toDouble());
+  Stream<double>? get fpsRateStream => fpsRateEventChannel.receiveBroadcastStream().map((rate) => (rate as num).toDouble());
 
   @override
   Future<List<ClassificationResult?>?> classifyImage(String imagePath) async {
-    final result =
-        await methodChannel.invokeMethod<List<Object?>>('classifyImage', {
+    final result = await methodChannel.invokeMethod<List<Object?>>('classifyImage', {
       'imagePath': imagePath,
     }).catchError((_) {
       return <ClassificationResult?>[];
@@ -132,8 +108,7 @@ class PlatformChannelUltralyticsYolo implements UltralyticsYoloPlatform {
     final objects = <ClassificationResult>[];
 
     result?.forEach((json) {
-      objects.add(ClassificationResult.fromJson(
-          Map<String, dynamic>.from(json as Map)));
+      objects.add(ClassificationResult.fromJson(Map<String, dynamic>.from(json as Map)));
     });
 
     return objects;
@@ -141,9 +116,41 @@ class PlatformChannelUltralyticsYolo implements UltralyticsYoloPlatform {
 
   @override
   Future<List<DetectedObject?>?> detectImage(String imagePath) async {
-    final result =
-        await methodChannel.invokeMethod<List<Object?>>('detectImage', {
+    final result = await methodChannel.invokeMethod<List<Object?>>('detectImage', {
       'imagePath': imagePath,
+    }).catchError((_) {
+      return <DetectedObject?>[];
+    });
+
+    final objects = <DetectedObject>[];
+
+    result?.forEach((json) {
+      json = json as Map<dynamic, dynamic>?;
+      if (json == null) return;
+      objects.add(DetectedObject.fromJson(json));
+    });
+
+    return objects;
+  }
+
+  @override
+  Future<List<DetectedObject?>?> detectBytes({
+    required Uint8List bytes,
+    required Size previewSize,
+    required Size imageSize,
+    double? aspectRatio,
+  }) async {
+    final result = await methodChannel.invokeMethod<List<Object?>>('detectBytes', {
+      'bytes': bytes,
+      'previewSize': {
+        'height': previewSize.height,
+        'width': previewSize.width,
+      },
+      'imageSize': {
+        'height': imageSize.height,
+        'width': imageSize.width,
+      },
+      'aspectRatio': aspectRatio,
     }).catchError((_) {
       return <DetectedObject?>[];
     });

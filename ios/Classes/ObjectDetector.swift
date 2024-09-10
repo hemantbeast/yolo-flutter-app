@@ -235,18 +235,19 @@ public class ObjectDetector: Predictor {
     }
   }
 
-  public func predictOnImage(image: CIImage, completion: ([[String: Any]]) -> Void) {
+  public func predictOnImage(image: CIImage, height: Double?, width: Double?, aspectRatio: Double?, completion: ([[String: Any]]) -> Void) {
     let requestHandler = VNImageRequestHandler(ciImage: image, options: [:])
     let request = VNCoreMLRequest(model: detector)
     var recognitions: [[String: Any]] = []
+    let ratio = aspectRatio ?? (4.0 / 3.0)
 
-    let screenWidth = self.screenSize?.width ?? 393
-    let screenHeight = self.screenSize?.height ?? 852
+    let screenWidth = width ?? self.screenSize?.width ?? 393
+    let screenHeight = height ?? self.screenSize?.height ?? 852
     let imageWidth = image.extent.width
     let imageHeight = image.extent.height
     let scaleFactor = screenWidth / imageWidth
     let newHeight = imageHeight * scaleFactor
-    let screenRatio: CGFloat = (screenHeight / screenWidth) / (4.0 / 3.0)  // .photo
+    let screenRatio: CGFloat = (screenHeight / screenWidth) / ratio  // .photo
 
     do {
       try requestHandler.perform([request])
@@ -262,7 +263,7 @@ public class ObjectDetector: Predictor {
               let offset = (1 - screenRatio) * (0.5 - rect.minX)
               let transform = CGAffineTransform(scaleX: 1, y: -1).translatedBy(x: offset, y: -1)
               rect = rect.applying(transform)
-              //                        rect.size.width *= screenRatio
+              //rect.size.width *= screenRatio
             } else {  // iPad ratio = 0.75
               let offset = (screenRatio - 1) * (0.5 - rect.maxY)
               let transform = CGAffineTransform(scaleX: 1, y: -1).translatedBy(x: 0, y: offset - 1)

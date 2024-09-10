@@ -1,3 +1,6 @@
+import 'dart:ui';
+
+import 'package:flutter/foundation.dart';
 import 'package:ultralytics_yolo/predict/detect/detected_object.dart';
 import 'package:ultralytics_yolo/predict/predictor.dart';
 import 'package:ultralytics_yolo/yolo_model.dart';
@@ -8,8 +11,7 @@ class ObjectDetector extends Predictor {
   ObjectDetector({required YoloModel model}) : super(model);
 
   /// The platform instance used to run detection.
-  Stream<List<DetectedObject?>?> get detectionResultStream =>
-      super.ultralyticsYoloPlatform.detectionResultStream;
+  Stream<List<DetectedObject?>?> get detectionResultStream => super.ultralyticsYoloPlatform.detectionResultStream;
 
   /// Sets the confidence threshold for the detection.
   void setConfidenceThreshold(double confidence) {
@@ -27,6 +29,20 @@ class ObjectDetector extends Predictor {
   }
 
   /// Detects objects from the given [imagePath].
-  Future<List<DetectedObject?>?> detect({required String imagePath}) =>
-      super.ultralyticsYoloPlatform.detectImage(imagePath);
+  Future<List<DetectedObject?>?> detect({required String imagePath}) => super.ultralyticsYoloPlatform.detectImage(imagePath);
+
+  /// Detects objects from the given [bytes].
+  Future<List<DetectedObject?>?> detectBytes({
+    required Uint8List bytes,
+    required Size previewSize,
+    required Size imageSize,
+    double? aspectRatio,
+  }) {
+    return super.ultralyticsYoloPlatform.detectBytes(
+          bytes: bytes,
+          previewSize: previewSize,
+          imageSize: imageSize,
+          aspectRatio: aspectRatio,
+        );
+  }
 }

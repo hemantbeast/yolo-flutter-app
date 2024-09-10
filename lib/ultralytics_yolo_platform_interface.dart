@@ -1,3 +1,6 @@
+import 'dart:ui';
+
+import 'package:flutter/foundation.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import 'package:ultralytics_yolo/predict/classify/classification_result.dart';
 import 'package:ultralytics_yolo/predict/detect/detected_object.dart';
@@ -85,6 +88,16 @@ abstract class UltralyticsYoloPlatform extends PlatformInterface {
   /// Detect objects in the given [imagePath].
   Future<List<DetectedObject?>?> detectImage(String imagePath) {
     throw UnimplementedError('detectImage has not been implemented.');
+  }
+
+  /// Detect objects in the given [bytes].
+  Future<List<DetectedObject?>?> detectBytes({
+    required Uint8List bytes,
+    required Size previewSize,
+    required Size imageSize,
+    double? aspectRatio,
+  }) {
+    throw UnimplementedError('detectBytes has not been implemented.');
   }
 
   /// Stream of classification results.

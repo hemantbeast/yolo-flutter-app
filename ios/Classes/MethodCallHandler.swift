@@ -56,6 +56,8 @@ class MethodCallHandler: VideoCaptureDelegate, InferenceTimeListener, ResultsLis
       closeCamera(args: args, result: result)
     } else if call.method == "detectImage" || call.method == "classifyImage" {
       predictOnImage(args: args, result: result)
+    } else if call.method == "detectBytes" {
+      predictOnBytes(args: args, result: result)
     }
   }
 
@@ -159,6 +161,28 @@ class MethodCallHandler: VideoCaptureDelegate, InferenceTimeListener, ResultsLis
     let image = try? createCIImage(fromPath: imagePath)
     predictor?.predictOnImage(
       image: image!,
+      height: nil,
+      width: nil,
+      aspectRatio: nil,
+      completion: { recognitions in
+        result(recognitions)
+      })
+  }
+
+  private func predictOnBytes(args: [String: Any], result: @escaping FlutterResult) {
+    let bytes = args["bytes"] as! FlutterStandardTypedData
+    let previewSize = args["previewSize"] as! [String: Any]
+    let aspectRatio = args["aspectRatio"] as? Double
+
+    let height = previewSize["height"] as! Double
+    let width = previewSize["width"] as! Double
+
+    let image = CIImage(data: bytes.data)
+    predictor?.predictOnImage(
+      image: image!,
+      height: height,
+      width: width,
+      aspectRatio: aspectRatio,
       completion: { recognitions in
         result(recognitions)
       })

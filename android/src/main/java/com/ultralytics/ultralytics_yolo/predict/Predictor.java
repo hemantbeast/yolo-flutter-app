@@ -3,6 +3,7 @@ package com.ultralytics.ultralytics_yolo.predict;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
+import android.util.Size;
 
 import androidx.annotation.Keep;
 import androidx.camera.core.ImageProxy;
@@ -64,6 +65,8 @@ public static  int INPUT_SIZE = 320;
     }
 
     public abstract Object predict(Bitmap bitmap);
+
+    public abstract Object predict(Bitmap bitmap, Size previewSize, Size imageSize);
 
     public abstract void predict(ImageProxy imageProxy, boolean isMirrored);
 
