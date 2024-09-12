@@ -334,7 +334,8 @@ public class MethodCallHandler implements MethodChannel.MethodCallHandler {
                 Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
                 final float[][] res = (float[][]) predictor.predict(bitmap, previewSize, imageSize);
 
-                float newWidth = (float)(previewSize.getHeight() * (imageSize.getHeight() / imageSize.getWidth()));
+                float ratio = (float) imageSize.getHeight() / imageSize.getWidth();
+                float newWidth = previewSize.getHeight() * ratio;
                 final float offsetX = ((float)previewSize.getWidth() - newWidth) / 2;
                 List<Map<String, Object>> objects = new ArrayList<>();
 
